@@ -117,7 +117,7 @@ echo -e "\t\tLinked executables:"
 echo -e "\t\t  · /usr/bin/filebot"
 echo -e "\t\t  · /usr/bin/filebot-update"
 echo -e "\nChecking/updating latest version of filebot"
-filebot-update 2> /dev/null
+filebot-update &> /dev/null
 fi
 
 exit
