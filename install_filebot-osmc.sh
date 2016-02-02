@@ -116,7 +116,7 @@ if [ -e /usr/bin/filebot ] && [ -e /usr/bin/filebot-update ]; then
 echo -e "\t\tLinked executables:"
 echo -e "\t\t  · /usr/bin/filebot"
 echo -e "\t\t  · /usr/bin/filebot-update"
-echo -e "\nChecking/updating latest version of filebot"
+echo -e "\nChecking/updating latest version of filebot..."
 filebot-update &> /dev/null
 fi
 
