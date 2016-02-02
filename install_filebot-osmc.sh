@@ -97,7 +97,7 @@ else
 echo -ne "\r\033[K|| 7-zip JBinding library\t\t- downloading..."
 wget -q -P /usr/share/filebot/ https://svn.code.sf.net/p/filebot/code/trunk/lib/native/linux-arm/lib7-Zip-JBinding.so
 echo -ne "\r\033[K|| 7-zip JBinding library\t\t- installing..."
-sed -i '/hej/s/[^\B] //g' /usr/share/filebot/filebot.sh
+sed -e '/SevenZipNativeBindings/s/[^\B] //' -e '/ApacheVFS/ s/^#*/#/' -i /usr/share/filebot/filebot.sh
 echo -e "\r\033[K|||| 7-zip JBinding library\t\t- INSTALLED!"
 fi
 
