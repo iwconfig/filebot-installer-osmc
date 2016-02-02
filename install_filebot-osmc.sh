@@ -74,6 +74,7 @@ echo -ne "\r\033[K|| Filebot\t\t\t\t- installing..."
 unzip -q -o /tmp/filebot.zip -x {*.exe,*.cmd,*.ini} -d /usr/share/filebot
 ln -s -f /usr/share/filebot/filebot.sh /usr/bin/filebot
 ln -s -f /usr/share/filebot/update-filebot.sh /usr/bin/filebot-update
+chown osmc:osmc /usr/share/filebot/data
 rm /tmp/filebot.zip
 echo -e "\r\033[K|||| Filebot\t\t\t\t- INSTALLED!"
 fi
