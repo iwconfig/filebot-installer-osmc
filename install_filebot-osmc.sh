@@ -111,7 +111,7 @@ echo -e "\r\033[K|||| Music fingerprint utility fpcalc\t- INSTALLED!"
 fi
 
 echo "Checking/updating latest version of filebot"
-./usr/share/filebot/update-filebot.sh
+source /usr/share/filebot/update-filebot.sh
 
 echo DONE
 
