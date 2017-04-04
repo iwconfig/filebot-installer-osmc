@@ -12,7 +12,9 @@ Also includes an uninstaller.
 
 ### How to:
 User must be have root privileges.
-######Install
-``` sudo ./install_filebot-osmc.sh ```
-######Uninstall
-``` sudo ./uninstall_filebot-osmc.sh ```
+
+###### Install
+`sudo ./install_filebot-osmc.sh`
+
+###### Uninstall
+`sudo ./uninstall_filebot-osmc.sh`
