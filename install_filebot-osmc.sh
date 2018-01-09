@@ -1,7 +1,6 @@
 #!/bin/bash
 [[ $EUID -ne 0 ]] && echo "Run as root" 2>&1 && exit 1
 clear
-export LANG="en_US.UTF-8"
 trap ctrl_c SIGINT
 function ctrl_c() {
 echo -e "\n\nQUIT: Cleaning temporary files..."
@@ -15,7 +14,7 @@ echo -e "||| Java 8 JDK\t\t\t\t- Already installed!"
 else
 echo -ne "| Java 8 JDK\t\t\t\t- downloading..."
 javaurl=$(curl -s http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html | \
-egrep -o "http\:\/\/download.oracle\.com\/otn-pub\/java\/jdk\/[7-8]u[0-9]+\-(.*)+\/jdk-[7-8]u[0-9]+(.*)linux-arm32-vfp-hflt.tar.gz")
+egrep -o "http\:\/\/download.oracle\.com\/otn-pub\/java\/jdk\/[7-8]u[0-9]+\-(.*)+\/jdk-[7-8]u[0-9]+(.*)linux-arm32-vfp-hflt.tar.gz" | tail -n1)
 wget -q --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" -O /tmp/jdk8.tar.gz "$javaurl"
 echo -ne "\r\033[K|| Java 8 JDK\t\t\t\t- installing..."
 tar xzf /tmp/jdk8.tar.gz -C /opt/
@@ -37,29 +36,30 @@ jnaurl=$(jnaurl=$(curl -s https://maven.java.net/content/repositories/releases/n
 curl -s "$jnaurl" | egrep "[0-9][0-9.]*.jar<" | cut -d'"' -f2)
 jnaplatformurl=$(jnaplatformurl=$(curl -s https://maven.java.net/content/repositories/releases/net/java/dev/jna/jna-platform/ | grep -e '[0-9]/' | sort -nr | head -n1 | cut -d'"' -f2); \
 curl -s "$jnaplatformurl" | egrep "[0-9][0-9.]*.jar<" | cut -d'"' -f2)
-(wget -P /tmp/ "$jnaurl") &> /tmp/jna_wget
-(wget -P /tmp/ "$jnaplatformurl") &> /tmp/jnaplatform_wget
+wget -q -P /tmp/ "$jnaurl"
+wget -q -P /tmp/ "$jnaplatformurl"
 echo -ne "\r\033[K|| JNA\t\t\t\t\t- installing..."
 apt-get install libjna-java -y > /dev/null
-jna_version=$(cat /tmp/jna_wget | grep "Saving to:" | cut -d"'" -f2 | sed 's/[^.0-9]//g')
-jnaplatform_version=$(cat /tmp/jnaplatform_wget | grep "Saving to:" | cut -d"'" -f2 | sed 's/[^.0-9]//g')
-mkdir /tmp/jna-${jna_version%?}
-unzip -q -o /tmp/jna-${jna_version%?}.jar -d /tmp/jna-${jna_version%?}
-mkdir /tmp/jna-platform-${jnaplatform_version%?}
-unzip -q -o /tmp/jna-platform-${jnaplatform_version%?}.jar -d /tmp/jna-platform-${jnaplatform_version%?}
+jna_version=$(echo ${jnaurl%.*} | rev | cut -d- -f1 | rev)
+jnaplatform_version=$(echo ${jnaplatformurl%.*} | rev | cut -d- -f1 | rev)
+mkdir /tmp/jna-${jna_version}
+unzip -q -o /tmp/jna-${jna_version}.jar -d /tmp/jna-${jna_version}
+mkdir /tmp/jna-platform-${jnaplatform_version}
+unzip -q -o /tmp/jna-platform-${jnaplatform_version}.jar -d /tmp/jna-platform-${jnaplatform_version}
 [ ! -d /usr/lib/jni ] && mkdir /usr/lib/jni
 cd /usr/lib/jni
-cp -p /tmp/jna-${jna_version%?}/com/sun/jna/linux-arm/libjnidispatch.so libjnidispatch_${jna_version%?}.so
+cp -p /tmp/jna-${jna_version}/com/sun/jna/linux-arm/libjnidispatch.so libjnidispatch_${jna_version}.so
 [ -e /usr/lib/jni/libjnidispatch.so ] && rm libjnidispatch.so
-ln -s -f libjnidispatch_${jna_version%?}.so libjnidispatch.so
+ln -s -f libjnidispatch_${jna_version}.so libjnidispatch.so
 [ ! -d /usr/share/java ] && mkdir /usr/share/java
 cd /usr/share/java
 [ -e jna.jar ] && [ -e jna-platform.jar ] && rm jna.jar jna-platform.jar
-cp /tmp/jna-${jna_version%?}.jar .
-cp /tmp/jna-platform-${jnaplatform_version%?}.jar .
-ln -s -f jna-${jna_version%?}.jar jna.jar
-ln -s -f jna-platform-${jnaplatform_version%?}.jar jna-platform.jar
-rm -r -f /tmp/jna*_wget /tmp/jna*.jar /tmp/jna-${jna_version%?} /tmp/jna-platform-${jnaplatform_version%?}
+cp /tmp/jna-${jna_version}.jar .
+cp /tmp/jna-platform-${jnaplatform_version}.jar .
+
+ln -s -f jna-${jna_version}.jar jna.jar
+ln -s -f jna-platform-${jnaplatform_version}.jar jna-platform.jar
+rm -r -f /tmp/jna*_wget /tmp/jna*.jar /tmp/jna-${jna_version} /tmp/jna-platform-${jnaplatform_version}
 echo -e "\r\033[K|||| JNA\t\t\t\t- INSTALLED!"
 fi
 
@@ -68,14 +68,14 @@ if [[ $(ls /usr/share/filebot/* 2> /dev/null) ]] && [[ $(ls /usr/bin/filebot* 2>
 echo -e "||| Filebot\t\t\t\t- Already installed!"
 else
 echo -ne "\r\033[K| Filebot\t\t\t\t- downloading..."
-wget -q -O /tmp/filebot.zip "https://app.filebot.net/download.php?type=portable"
+wget -q -O /tmp/filebot.tar.xz "https://app.filebot.net/download.php?type=portable"
 echo -ne "\r\033[K|| Filebot\t\t\t\t- installing..."
-[ ! -d /usr/share/filebot ] && mkdir /usr/share/filebot
-unzip -q -o /tmp/filebot.zip -x {*.exe,*.cmd,*.ini} -d /usr/share/filebot
+[ ! -d /usr/share/filebot ] && mkdir -p /usr/share/filebot/data
+tar xf /tmp/filebot.tar.xz -C /usr/share/filebot --wildcards '*.jar' '*.sh' 'lib/armv7l'
 ln -s -f /usr/share/filebot/filebot.sh /usr/bin/filebot
 ln -s -f /usr/share/filebot/update-filebot.sh /usr/bin/filebot-update
 chown osmc:osmc /usr/share/filebot/data
-rm /tmp/filebot.zip
+rm /tmp/filebot.tar.xz
 echo -e "\r\033[K|||| Filebot\t\t\t\t- INSTALLED!"
 fi
 

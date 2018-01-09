@@ -1,7 +1,6 @@
 #!/bin/bash
 [[ $EUID -ne 0 ]] && echo "Run as root" 2>&1 && exit 1
 clear
-export LANG="en_US.UTF-8"
 trap ctrl_c SIGINT
 function ctrl_c() {
 echo -e "\n\nQUIT:"
