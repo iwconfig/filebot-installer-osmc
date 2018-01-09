@@ -18,3 +18,8 @@ User must be have root privileges.
 
 ###### Uninstall
 `sudo ./uninstall_filebot-osmc.sh`
+
+___
+### Todos or thoughts:
+- Cleanup. This code is messy and hard to read. I sometimes wonder why I insisted on no use of indentation. argh...
+- Maybe rewrite in python instead.
